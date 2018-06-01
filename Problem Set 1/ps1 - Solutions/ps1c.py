@@ -72,9 +72,3 @@ if 1.0 - guess_savings_rate <= 0.0001:
 else:
     print("Best savings rate: %.4f" % guess_savings_rate)
     print("Steps in bisection search: %d" % number_of_steps)
-        
-
-
-
-
-

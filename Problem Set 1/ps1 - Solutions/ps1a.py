@@ -37,4 +37,3 @@ while current_savings < down_payment_cost:
     number_of_months += 1
     
 print("Number of months: %d" % number_of_months)
-
