@@ -219,7 +219,7 @@ def hangman(secret_word):
 
     # If user guessed the word, print a congratulatory
     # message and tell the user their total score. The total score
-    # is the number of guesses remaining * unique letters in the
+    # is the (number of guesses remaining * unique letters) in the
     # secret word
     total_score = guesses_left * len(set(secret_word))
     if is_word_guessed(secret_word, letters_guessed) is True:
