@@ -194,7 +194,7 @@ def hangman(secret_word):
                     print("Oops! You've already guessed that letter. You have %d warnings left:" % warnings_left,
                           get_guessed_word(secret_word, letters_guessed))
                 elif warnings_left == 1:
-                    print("Oops! You've already guessed that letter.You have 1 warning left:",
+                    print("Oops! You've already guessed that letter. You have 1 warning left:",
                           get_guessed_word(secret_word, letters_guessed))
                 else:
                     print("Oops! You've already guessed that letter. "
