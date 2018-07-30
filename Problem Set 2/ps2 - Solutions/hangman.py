@@ -60,11 +60,12 @@ def is_word_guessed(secret_word, letters_guessed):
     returns: boolean, True if all the letters of secret_word are in letters_guessed;
       False otherwise
     '''
-    # To see if all the letters in secret_word have been guessed, arrange 
-    # both the secret_word character array and letters_guessed array in 
-    # alphabetical order, compare the two, and return the result. If they
-    # aren't equal, then the word hasn't been guessed yet.
-    return sorted(set(secret_word)) == sorted(letters_guessed)
+    # To see if all the letters in secret_word have been guessed, compared the
+    # set of letters in the secret word to all the letters guessed. If the letters
+    # in the secret word are a subset of the letters guessed (because there can be
+    # more unique letters guessed than there are in the secret word), then the
+    # secret word has been found.
+    return set(secret_word).issubset(letters_guessed)
     
 
 
@@ -190,7 +191,7 @@ def hangman(secret_word):
                         guesses_left -= 1
             else:
                 warnings_left -= 1
-                if warnings_left > 1:
+                if warnings_left > 1 or warnings_left == 0:
                     print("Oops! You've already guessed that letter. You have %d warnings left:" % warnings_left,
                           get_guessed_word(secret_word, letters_guessed))
                 elif warnings_left == 1:
