@@ -206,7 +206,7 @@ def hangman(secret_word):
         # Otherwise, user loses one guess.
         else:
             warnings_left -= 1
-            if warnings_left > 1:
+            if warnings_left > 1 or warnings_left == 0:
                 print("Oops! That is not a valid letter. You have %d warnings left:" % warnings_left, get_guessed_word(secret_word, letters_guessed))
             elif warnings_left == 1:
                 print("Oops! That is not a valid letter. You have 1 warning left:", get_guessed_word(secret_word, letters_guessed))
