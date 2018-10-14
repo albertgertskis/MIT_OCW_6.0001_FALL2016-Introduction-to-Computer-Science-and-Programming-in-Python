@@ -179,7 +179,7 @@ def hangman(secret_word):
                 # letters guessed and tell user it was a good guess.
                 # If the guessed letter is not in the secret word, user
                 # loses either 1 or 2 guesses depending on whether the
-                # letter was a vowel or a consonant
+                # letter was a consonant or a vowel
                 else:
                     print("Oops! That letter is not in my word:", get_guessed_word(secret_word, letters_guessed))
                     letters_guessed.append(user_letter_guess)
@@ -365,7 +365,7 @@ def hangman_with_hints(secret_word):
                 # letters guessed and tell user it was a good guess.
                 # If the guessed letter is not in the secret word, user
                 # loses either 1 or 2 guesses depending on whether the
-                # letter was a vowel or a consonant
+                # letter was a consonant or a vowel
                 else:
                     print("Oops! That letter is not in my word:", get_guessed_word(secret_word, letters_guessed))
                     letters_guessed.append(user_letter_guess)
