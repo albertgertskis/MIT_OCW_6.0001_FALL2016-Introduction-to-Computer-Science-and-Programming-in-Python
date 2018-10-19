@@ -16,7 +16,7 @@ CONSONANTS = 'bcdfghjklmnpqrstvwxyz'
 HAND_SIZE = 7
 
 SCRABBLE_LETTER_VALUES = {
-    'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4, 'g': 2, 'h': 4, 'i': 1, 'j': 8, 'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1, 'p': 3, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8, 'y': 4, 'z': 10
+    'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4, 'g': 2, 'h': 4, 'i': 1, 'j': 8, 'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1, 'p': 3, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8, 'y': 4, 'z': 10, '*': 0
 }
 
 # -----------------------------------
@@ -149,16 +149,22 @@ def deal_hand(n):
     """
 
     hand={}
-    num_vowels = int(math.ceil(n / 3))
+    # Subtract 1 from the number of vowels to allow one of the vowels to be
+    # replaced with a wildcard
+    num_vowels = int(math.ceil(n / 3)) - 1
 
     for i in range(num_vowels):
         x = random.choice(VOWELS)
         hand[x] = hand.get(x, 0) + 1
     
-    for i in range(num_vowels, n):    
+    # num_vowels + 1 because one of the letters in the hand will be a wildcard
+    for i in range(num_vowels + 1, n):    
         x = random.choice(CONSONANTS)
         hand[x] = hand.get(x, 0) + 1
     
+    # Add the wildcard to the hand
+    hand['*'] += 1
+
     return hand
 
 #
@@ -189,12 +195,18 @@ def update_hand(hand, word):
     # For every letter in the word
     for letter in word:
         # # If the letter exists in the hand
-        # if new_hand.get(letter.lower()) != None:
-        #     # If that letter is still in the hand (the letter doesn't have a 
-        #     # count of 0 in the hand). This is added to make sure that if a 
-        #     # player makes a word that isn't valid with letters that they
-        #     # either don't have or use up too many of their hand's letters, the 
-        #     # value will not be less than 0
+
+        ######################################################################################
+        ########### REMOVE THIS IF ALL UNIT TESTS PASSED AND PROGRAM RUNS PROPERLY ###########
+        #  if new_hand.get(letter.lower()) != None:                                          #
+        #     # If that letter is still in the hand (the letter doesn't have a               #
+        #     # count of 0 in the hand). This is added to make sure that if a                #
+        #     # player makes a word that isn't valid with letters that they                  #
+        #     # either don't have or use up too many of their hand's letters, the            #
+        #     # value will not be less than 0                                                #
+        ######################################################################################
+        ######################################################################################
+        
         if new_hand[letter.lower()] > 0:
             # Remove the current letter in the word from the "new" hand
             new_hand[letter.lower()] -= 1
@@ -220,20 +232,102 @@ def is_valid_word(word, hand, word_list):
     lowercase_hand = dict(hand)
     lowercase_word = word.lower()
 
-    # If the word is in the word list, return false
-    if word.lower() not in word_list:
+    # Store the different word possibilities that can be craated
+    # with a wildcard
+    wildcard_filled_words = []
+    # The copy array is needed for when every word contained within
+    # it is iterated over and removed if it is not in the word list.
+    # If this array does not exist, when doing this iteration and removal,
+    # words would be skipped over if the previous word was removed from the array
+    wildcard_filled_words_copy = []
+
+    # If the word has a wildcard in it
+    if '*' in lowercase_word:
+        # Find and save the location of the '*' in the string
+        wildcard_location = lowercase_word.find('*')
+        # For every vowel in the alphabet
+        for letter in VOWELS:
+            # Switch the wildcard for the current vowel and add it to the
+            # array holding the different word possibilities that can be
+            # created with that wildcard
+            wildcard_filled_words.append(lowercase_word.replace('*', letter))
+            wildcard_filled_words_copy.append(lowercase_word.replace('*', letter))
+        # For every word in the wildcard replaced word list
+        for wildcard_filled_word in wildcard_filled_words_copy:
+            # If that word is not in the word list
+            if wildcard_filled_word not in word_list:
+                # Remove that word from the possible words
+                wildcard_filled_words.remove(wildcard_filled_word)
+
+        # If there are no wildcard-replaced words contained in the word list
+        # return False
+        if wildcard_filled_words == []:
+            return False
+        # Otherwise, if there are wildcard-replaced words contained in the word list
+        else:
+            # Test each word to see if it can be spelled using the given hand.
+            for wildcard_filled_word in wildcard_filled_words:
+                # For every letter in the wildcard-replaced word
+                for index, letter in enumerate(wildcard_filled_word):
+                    # If the current letter is the letter replacing the wildcard
+                    if index == wildcard_location:
+                        # Use the wildcard as the letter value to test if the
+                        # word with the wildcard symbole can be spelled from the hand
+                        letter = '*'
+                        # If the letter does not exist in the hand, break to move
+                        # on to the next word
+                        if lowercase_hand.get(letter) == None:
+                            # Remove the current wildcard-filled word from the
+                            # wildcard-filled word list
+                            wildcard_filled_words.remove(wildcard_filled_word)
+                            # Reset the letter count in the hand for the next word
+                            lowercase_hand = dict(hand)
+                            break
+                        # Otherwise, if the letter does exist in the hand (even with count 0)
+                        else:
+                            # If there is a count of less than 1 of that letter in the hand
+                            if lowercase_hand[letter] < 1:
+                                # Remove the current wildcard-filled word from the
+                                # wildcard-filled word list
+                                wildcard_filled_words.remove(wildcard_filled_word)
+                                # Reset the letter count in the hand for the next word
+                                lowercase_hand = dict(hand)
+                                # That word cannot be created because the current hand does not
+                                # have enough of that letter so break and move on to the next
+                                # word
+                                break
+                            # Otherwise, if there is a count of 1 or more of that letter in the hand
+                            else:
+                                # Subtract 1 from that letter's count in that hand
+                                lowercase_hand[letter] -= 1
+            # If there is not wildcard-filled word that can be spelled using
+            # the user's current hand, it not a valid word
+            if wildcard_filled_words == []:
+                return False
+            # Otherwise, it is a valid word
+            else:
+                return True
+
+
+    # If the word does not have a wildcard in it and is not in the word 
+    # list, return False
+    elif lowercase_word not in word_list:
         return False
+
 
     # For every letter in the word
     for letter in lowercase_word:
-        # If the letter does not exist in the hand
+        # If the letter does not exist in the hand, return False
         if lowercase_hand.get(letter) == None:
             return False
         # Otherwise, if the letter does exist in the hand (even with count 0)
         else:
             # If there is a count of less than 1 of that letter in the hand
             if lowercase_hand[letter] < 1:
+                # That word cannot be created because the current hand does not
+                # have enough of that letter
                 return False
+            # Otherwise, if there is a count of 1 or more of that letter in the hand
             else:
                 # Subtract 1 from that letter's count in that hand
                 lowercase_hand[letter] -= 1
